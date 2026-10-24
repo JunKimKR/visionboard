@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0b0d">
+  <meta name="description" content="내 사진으로 만드는 비전보드">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="비전보드">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600&display=swap">
+  <link rel="stylesheet" href="style.css">
+  <title>비전보드</title>
+</head>
+<body>
+  <header class="topbar">
+    <button id="boardSwitch" class="board-switch" type="button" aria-label="보드 바꾸기">
+      <span id="boardName">비전보드</span>
+      <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <button id="menuBtn" class="icon-btn" type="button" aria-label="메뉴">
+      <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.8" fill="currentColor"/><circle cx="12" cy="12" r="1.8" fill="currentColor"/><circle cx="19" cy="12" r="1.8" fill="currentColor"/></svg>
+    </button>
+  </header>
+
+  <main>
+    <section class="hero">
+      <p id="motto" class="motto" role="button" tabindex="0"></p>
+      <div class="rule" aria-hidden="true"></div>
+    </section>
+
+    <div id="grid" class="grid"></div>
+
+    <section id="empty" class="empty" hidden>
+      <p class="empty-title">아직 사진이 없어요</p>
+      <p class="empty-text">아래 <b>+ 사진</b> 버튼으로 이루고 싶은 모습의 사진을 넣어보세요.<br>
+        사진을 누르면 문구를 달 수 있고, 꾹 눌러서 끌면 순서를 바꿀 수 있어요.</p>
+    </section>
+  </main>
+
+  <nav class="fab">
+    <button id="playBtn" class="btn" type="button">
+      <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z" fill="currentColor"/></svg>
+      슬라이드쇼
+    </button>
+    <label class="btn primary" for="fileInput">
+      <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+      사진
+    </label>
+    <input id="fileInput" type="file" accept="image/*" multiple hidden>
+    <input id="importInput" type="file" accept="application/json,.json" hidden>
+  </nav>
+
+  <!-- 하단 선택 메뉴 -->
+  <div id="sheet" class="layer sheet-layer" hidden>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+      <p id="sheetTitle" class="sheet-title"></p>
+      <div id="sheetList" class="sheet-list"></div>
+    </div>
+  </div>
+
+  <!-- 글 입력 / 확인 창 -->
+  <div id="ask" class="layer center-layer" hidden>
+    <form id="askForm" class="dialog" role="dialog" aria-modal="true" aria-labelledby="askTitle">
+      <p id="askTitle" class="dialog-title"></p>
+      <p id="askMessage" class="dialog-message"></p>
+      <input id="askInput" class="field" type="text" maxlength="80" autocomplete="off">
+      <textarea id="askArea" class="field" rows="3" maxlength="200"></textarea>
+      <div class="dialog-actions">
+        <button id="askCancel" class="btn" type="button">취소</button>
+        <button id="askOk" class="btn primary" type="submit">저장</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- 사진 크게 보기 -->
+  <div id="viewer" class="layer viewer" hidden>
+    <div class="viewer-top">
+      <button id="viewerClose" class="icon-btn" type="button" aria-label="닫기">
+        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <button id="viewerDelete" class="btn danger-text" type="button">삭제</button>
+    </div>
+    <div class="viewer-stage">
+      <button id="viewerPrev" class="nav-btn" type="button" aria-label="이전 사진">
+        <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <img id="viewerImg" alt="">
+      <button id="viewerNext" class="nav-btn" type="button" aria-label="다음 사진">
+        <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+    <div class="viewer-bottom">
+      <input id="captionInput" class="field caption-field" type="text" maxlength="60" placeholder="이 사진에 붙일 문구 (예: 2027년 내 집 마련)" enterkeyhint="done">
+    </div>
+  </div>
+
+  <!-- 슬라이드쇼 -->
+  <div id="show" class="layer show" hidden>
+    <div id="showStage" class="show-stage"></div>
+    <div class="show-progress"><div id="showBar"></div></div>
+    <p id="showMotto" class="show-motto"></p>
+    <p id="showCaption" class="show-caption"></p>
+    <p id="showPaused" class="show-paused" hidden>일시정지</p>
+    <button id="showClose" class="icon-btn show-close" type="button" aria-label="슬라이드쇼 닫기">
+      <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+
+  <!-- 배경화면 미리보기 -->
+  <div id="preview" class="layer center-layer" hidden>
+    <div class="dialog preview-dialog" role="dialog" aria-modal="true" aria-labelledby="previewTitle">
+      <p id="previewTitle" class="dialog-title">배경화면 이미지</p>
+      <img id="previewImg" class="preview-img" alt="만들어진 배경화면 미리보기">
+      <p class="dialog-message small">폰에서는 사진을 <b>꾹 눌러 "사진에 저장"</b>해도 돼요.</p>
+      <div class="dialog-actions">
+        <button id="previewClose" class="btn" type="button">닫기</button>
+        <button id="previewSave" class="btn primary" type="button">저장하기</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="vendor/Sortable.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
